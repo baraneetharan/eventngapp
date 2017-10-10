@@ -1,0 +1,67 @@
+{{allBookCategories | json}}
+<div class="container">
+  <div class="container"><table>
+    <tr><th> Id</th> <th>Title</th><th>Category</th><th></th><th></th></tr>
+    <tr *ngFor="let bookCategory of allBookCategories" >
+          <td>{{bookCategory.bookcatId}}</td> <td>{{bookCategory.name}}</td> 
+    <td><button type="button" (click)="editBookCategory(bookCategory.bookcatId)">Edit</button> </td> 
+    <td><button type="button" (click)="deleteBookCategory(bookCategory.bookcatId)">Delete</button></td>
+    </tr>
+  </table>
+</div>
+
+{{books | json}}
+
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="margin-20">
+        <h4>Add Book Category</h4>
+      </div>
+      <form [formGroup]="myForm"  (ngSubmit)="save()">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" class="form-control" formControlName="name">
+          <small *ngIf="!myForm.controls.name.valid" class="text-danger">
+              Book Category is required (minimum 5 characters).
+            </small>
+        </div>
+        <!--books-->
+        <div formArrayName="book">
+          <div *ngFor="let book of myForm.controls.book.controls; let i=index" class="panel panel-default">
+            <div class="panel-heading">
+              <span>Book {{i + 1}}</span>
+              <span class="glyphicon glyphicon-remove pull-right" *ngIf="myForm.controls.book.controls.length > 1" (click)="removeBook(i)"></span>
+            </div>
+            <div class="panel-body" [formGroupName]="i">
+              <div class="form-group col-xs-6">
+                <label>Book Name</label>
+                <input type="text" class="form-control" formControlName="bookname">
+                <small [hidden]="myForm.controls.book.controls[i].controls.bookname.valid" class="text-danger">
+                    Book Name is required
+                </small>
+              </div>              
+            </div>
+          </div>
+        </div>
+
+        <div class="margin-20">
+          <a (click)="addBook()" style="cursor: default">
+            Add another book +
+          </a>
+        </div>
+
+        <div class="margin-20">
+          <button type="submit" class="btn btn-primary pull-right" [disabled]="!myForm.valid">Submit</button>
+        </div>
+        <div class="clearfix"></div>
+
+        <div class="margin-20">
+          <div>myForm details:-</div>
+          <pre>Is myForm valid?: <br>{{myForm.valid | json}}</pre>
+          <pre>form value: <br>{{myForm.value | json}}</pre>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
