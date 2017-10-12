@@ -23,7 +23,7 @@ export class BookCategoryService {
         //.map(res => res.json());
   }
   updateBookCategory(id, info){
-    return this.http.put(this.bookUrl+"post/"+id,info)
+    return this.http.put(this.bookUrl+"put/"+id,info)
         .map(res => res.json());
   }
 }

@@ -16,93 +16,120 @@ export class AppComponent {
     statusCode: number;
     allBookCategories: BookCategory[];
     books: Object = {};
-    bookCategoryEditForm: FormGroup;
-
+    tobeupdated: string;
+    
     constructor(private _fb: FormBuilder,
-        private bookCategoryService: BookCategoryService) { }
-
+    private bookCategoryService: BookCategoryService) { }
+    
     ngOnInit() {
-        this.myForm = this._fb.group({
-            id: [0],
-            name: ['', [Validators.required, Validators.minLength(5)]],
-            book: this._fb.array([
-                // this.initBook(),
-            ])
-        });
-
-        this.getall();
+    // this.adding = 0;
+    
+    this.myForm = this._fb.group({
+    bookcatId: [0],
+    name: ['', [Validators.required, Validators.minLength(5)]],
+    book: this._fb.array([
+    // this.initBook(),
+    ])
+    });
+    this.getall();
     }
-
+    
+    loadform() {
+    this.myForm = this._fb.group({
+    bookcatId: [this.tobeupdated],
+    name: ['', [Validators.required, Validators.minLength(5)]],
+    book: this._fb.array([
+    // this.initBook(),
+    ])
+    });
+    }
+    
     initBook() {
-        return this._fb.group({
-            id: [0],
-            bookname: ['', Validators.required]
-        });
+    return this._fb.group({
+    bookId: [0],
+    bookname: ['', Validators.required],
+    });
     }
-
+    
     addBook() {
-        const control = <FormArray>this.myForm.controls['book'];
-        control.push(this.initBook());
+    
+    const control = <FormArray>this.myForm.controls['book'];
+    console.log(this.initBook());
+    control.push(this.initBook());
     }
-
     removeBook(i: number) {
-        const control = <FormArray>this.myForm.controls['book'];
-        control.removeAt(i);
+    const control = <FormArray>this.myForm.controls['book'];
+    control.removeAt(i);
     }
-
+    
+    update() {
+    
+    console.log(this.myForm.controls['book']);
+    console.log("*******" + JSON.stringify(this.myForm.value));
+    this.bookCategoryService.updateBookCategory(this.tobeupdated, this.myForm.value)
+    .subscribe(successCode => {
+    //this.statusCode = successCode;
+    this.getall();
+    },
+    errorCode => this.statusCode = errorCode);
+    
+    }
+    
     save() {
-        console.log(this.myForm.value);
-        this.bookCategoryService.addBookCategory(this.myForm.value)
-            .subscribe(successCode => {
-                this.statusCode = successCode;
-            },
-            errorCode => this.statusCode = errorCode);
+    console.log(this.myForm.value);
+    this.bookCategoryService.addBookCategory(this.myForm.value)
+    .subscribe(successCode => {
+    //this.statusCode = successCode;
+    
+    },
+    errorCode => this.statusCode = errorCode);
+    this.getall();
     }
-
+    
     getall() {
-        this.bookCategoryService.getAllBookCategory()
-            .subscribe(
-            data => this.allBookCategories = data,
-            errorCode => this.statusCode = errorCode);
-
+    this.bookCategoryService.getAllBookCategory()
+    .subscribe(
+    data => this.allBookCategories = data,
+    errorCode => this.statusCode = errorCode);
     }
-
+    
     deleteBookCategory(bookcatId: string) {
-        this.bookCategoryService.deleteBookCategory(bookcatId)
-            .subscribe(successCode => {
-                // this.statusCode = successCode;    
-            },
-            errorCode => this.statusCode = errorCode);
+    this.bookCategoryService.deleteBookCategory(bookcatId)
+    .subscribe(successCode => {
+    // this.statusCode = successCode; 
+    this.getall();
+    },
+    errorCode => this.statusCode = errorCode);
     }
-
+    
     editBookCategory(bookcatId: string) {
-        this.bookCategoryService.getBookCategory(bookcatId)
-            .subscribe(data => {
-                this.books = data;
-                this.patchForm();
-            })
+    this.tobeupdated = bookcatId;
+    this.bookCategoryService.getBookCategory(bookcatId)
+    .subscribe(data => {
+    this.books = data;
+    this.patchForm();
+    });
+    
     }
-
+    
     patchForm() {
-        this.myForm.patchValue({
-            name: this.books['name'],
-        })
-        this.setBooks()
+    console.log("books------>>>>>" + JSON.stringify(this.books));
+    
+    this.loadform();
+    this.myForm.patchValue({
+    name: this.books['name'],
+    })
+    this.setBooks();
     }
-
+    
     setBooks() {
-        this.clearArray();
-        let control = <FormArray>this.myForm.controls['book'];
-        console.log("books------>>>>>" + this.books);
-
-        this.books['book'].forEach(x => {
-            console.log(x.bookname);
-            control.push(this._fb.group({ bookname: x.bookname }))
-        })
+    let control = <FormArray>this.myForm.controls['book'];
+    this.books['book'].forEach(x => {
+    control.push(this._fb.group({ bookId: x.bookId, bookname: x.bookname }));
+    })
+    
     }
-
     public clearArray() {
-        this.myForm.controls['book'] = this._fb.array([]);
+    this.myForm.controls['book'] = this._fb.array([]);
     }
-
 }
